@@ -3,3 +3,7 @@ spring:
   output:
     ansi:
       enabled: always
+
+  # 로그 설정
+  logging.level:
+    org.hibernate.SQL: debug
