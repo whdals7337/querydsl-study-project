@@ -1,0 +1,5 @@
+# 콘솔 색상 설정
+spring:
+  output:
+    ansi:
+      enabled: always
