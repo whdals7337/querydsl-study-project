@@ -2,6 +2,8 @@ package study.querydsl;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -342,5 +344,77 @@ public class QuerydslBasicTest {
         // then
         assertThat(result).extracting("age")
                 .containsExactly(30, 40);
+    }
+    
+    @Test
+    public void simpleCase() throws Exception {
+        // given
+        
+        // when
+        List<String> result = queryFactory
+                .select(member.age
+                        .when(10).then("열살")
+                        .when(20).then("스무살")
+                        .otherwise("기타")
+                )
+                .from(member)
+                .fetch();
+
+        // then
+        for (String s : result) {
+            System.out.println(s);
+        }
+    }
+    
+    @Test
+    public void complexCase() throws Exception {
+        // given
+        
+        // when
+        List<String> result = queryFactory
+                .select(new CaseBuilder()
+                        .when(member.age.between(0, 9)).then("어린이")
+                        .when(member.age.between(10, 19)).then("10대")
+                        .when(member.age.between(20, 29)).then("20대")
+                        .when(member.age.between(30, 39)).then("30대")
+                        .when(member.age.between(40, 49)).then("40대")
+                        .when(member.age.between(50, 59)).then("50대")
+                        .when(member.age.between(60, 69)).then("60대")
+                        .when(member.age.between(70, 79)).then("70대")
+                        .when(member.age.between(80, 89)).then("80대")
+                        .otherwise("어르신")
+                )
+                .from(member)
+                .fetch();
+
+        // then
+        for (String s : result) {
+            System.out.println(s);
+        }
+    }
+
+    @Test
+    public void caseOrderBy() throws Exception {
+        // given
+
+        // when
+        NumberExpression<Integer> rankPath = new CaseBuilder()
+                .when(member.age.between(0, 20)).then(2)
+                .when(member.age.between(21, 30)).then(1)
+                .otherwise(3);
+
+        List<Tuple> result = queryFactory
+                .select(member.username, member.age, rankPath)
+                .from(member)
+                .orderBy(rankPath.desc())
+                .fetch();
+
+        // then
+        for (Tuple tuple : result) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            Integer rank = tuple.get(rankPath);
+            System.out.println("username = " + username + " age = " + age + " rank = " + rank);
+        }
     }
 }
