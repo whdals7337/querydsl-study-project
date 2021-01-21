@@ -195,7 +195,7 @@ public class QuerydslBasicTest {
         List<Tuple> result = queryFactory
                 .select(team.name, member.age.avg())
                 .from(member)
-                .join(member.team, team) // 멤버으 팀과 팀을 조인
+                .join(member.team, team) // 멤버의 팀과 팀을 조인
                 .groupBy(team.name)
                 .fetch();
 
@@ -208,5 +208,34 @@ public class QuerydslBasicTest {
 
         assertThat(teamB.get(team.name)).isEqualTo("teamB");
         assertThat(teamB.get(member.age.avg())).isEqualTo(35);
+    }
+
+    @Test
+    public void join() throws Exception {
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .leftJoin(member.team, team)
+                .where(team.name.eq("teamA"))
+                .fetch();
+        
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("member1", "member2");
+    }
+
+    @Test
+    public void theta_join() throws Exception {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+
+        List<Member> result = queryFactory
+                .select(member)
+                .from(member, team)
+                .where(member.username.eq(team.name))
+                .fetch();
+
+        assertThat(result)
+                .extracting("username")
+                .containsExactly("teamA", "teamB");
     }
 }
