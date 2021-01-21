@@ -1,6 +1,7 @@
 package study.querydsl;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
+import study.querydsl.entity.QTeam;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
@@ -17,6 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static study.querydsl.entity.QMember.member;
+import static study.querydsl.entity.QTeam.team;
 
 @SpringBootTest
 @Transactional
@@ -162,5 +165,48 @@ public class QuerydslBasicTest {
         assertThat(results.getLimit()).isEqualTo(2);
         assertThat(results.getOffset()).isEqualTo(1);
         assertThat(results.getResults().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void aggregation() throws Exception {
+        // given
+
+        // when
+        List<Tuple> result = queryFactory
+                .select(
+                        member.count(),
+                        member.age.max(),
+                        member.age.avg(),
+                        member.age.sum(),
+                        member.age.min()
+                )
+                .from(member)
+                .fetch();
+        // then
+        Tuple tuple = result.get(0);
+        assertThat(tuple.get(member.count())).isEqualTo(4);
+    }
+
+    @Test
+    public void group() throws Exception {
+        // given
+
+        // when
+        List<Tuple> result = queryFactory
+                .select(team.name, member.age.avg())
+                .from(member)
+                .join(member.team, team) // 멤버으 팀과 팀을 조인
+                .groupBy(team.name)
+                .fetch();
+
+        // then
+        Tuple teamA = result.get(0);
+        Tuple teamB = result.get(1);
+
+        assertThat(teamA.get(team.name)).isEqualTo("teamA");
+        assertThat(teamA.get(member.age.avg())).isEqualTo(15);
+
+        assertThat(teamB.get(team.name)).isEqualTo("teamB");
+        assertThat(teamB.get(member.age.avg())).isEqualTo(35);
     }
 }
