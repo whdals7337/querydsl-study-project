@@ -4,6 +4,16 @@ spring:
     ansi:
       enabled: always
 
-  # 로그 설정
-  logging.level:
-    org.hibernate.SQL: debug
+  # jpa 설정
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        #show_sql: true
+        format_sql: true
+        use_sql_comments: true
+
+# 로그 설정
+logging.level:
+  org.hibernate.SQL: debug
