@@ -25,7 +25,7 @@ dependencies {
 	implementation 'com.querydsl:querydsl-jpa'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2:1.4.199'
 
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
