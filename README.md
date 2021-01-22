@@ -9,3 +9,4 @@ https://www.inflearn.com/course/Querydsl-%EC%8B%A4%EC%A0%84#
     - 서브쿼리를 join으로 변경한다. (가능한 상황도 있고, 불가능한 상황도 있다.)
     - 애플리케이션에서 쿼리를 2번 분리해서 실행한다.
     - nativeSQL을 사용한다.
+2. 튜플이 querydsl에 종속적이기 때문에 프로젝션을 튜플로 사용하여 튜플을 서비스 등으로 전달하기보다 dto를 넘겨주는게 좋음
