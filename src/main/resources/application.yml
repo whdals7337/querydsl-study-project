@@ -1,5 +1,9 @@
-# 콘솔 색상 설정
 spring:
+  #profile 설정
+  profiles:
+    active: local
+
+  # 콘솔 색상 설정
   output:
     ansi:
       enabled: always
