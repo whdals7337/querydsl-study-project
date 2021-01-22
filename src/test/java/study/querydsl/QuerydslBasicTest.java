@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
@@ -593,7 +594,6 @@ public class QuerydslBasicTest {
     @Test
     public void findUserDtoByConstructor() throws Exception {
         // given
-        QMember memberSub = new QMember("memberSub");
 
         // when
         List<UserDto> result = queryFactory
@@ -608,6 +608,22 @@ public class QuerydslBasicTest {
         // then
         for (UserDto userDto : result) {
             System.out.println(userDto);
+        }
+    }
+
+    @Test
+    public void findUserDtoByQueryProjection() throws Exception {
+        // given
+
+        // when
+        List<MemberDto> result = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        // then
+        for (MemberDto memberDto : result) {
+            System.out.println(memberDto);
         }
     }
 }

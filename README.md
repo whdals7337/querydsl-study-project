@@ -10,3 +10,4 @@ https://www.inflearn.com/course/Querydsl-%EC%8B%A4%EC%A0%84#
     - 애플리케이션에서 쿼리를 2번 분리해서 실행한다.
     - nativeSQL을 사용한다.
 2. 튜플이 querydsl에 종속적이기 때문에 프로젝션을 튜플로 사용하여 튜플을 서비스 등으로 전달하기보다 dto를 넘겨주는게 좋음
+3. @QueryProjection을 사용하면 DTO가 Querydsl에 의존하게 되면서 하부기술 변경같은 경우에 문제가 될수있다.
