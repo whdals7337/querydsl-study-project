@@ -702,4 +702,73 @@ public class QuerydslBasicTest {
     private BooleanExpression allEq(String usernameParam, Integer ageParam) {
         return usernameEq(usernameParam).and(ageEq(ageParam));
     }
+
+    @Test
+    public void bulkUpdate() throws Exception {
+        // given
+
+        // when
+        long result = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+        em.flush();
+        em.clear();
+
+        List<Member> result2 = queryFactory.selectFrom(member).fetch();
+
+        for (Member member1 : result2) {
+            System.out.println(member1);
+        }
+        // then
+        System.out.println(result);
+    }
+
+    @Test
+    public void bulkCalc() throws Exception {
+        // given
+
+        // when
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.multiply(3))
+                .execute();
+
+        queryFactory
+                .update(member)
+                .set(member.age, member.age.divide(2))
+                .execute();
+
+        queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+
+        // then
+    }
+
+    @Test
+    public void sqlFunction() throws Exception {
+        // given
+
+        // when
+        List<String> result = queryFactory
+                .select(
+                        Expressions.stringTemplate("function('replace', {0}, {1}, {2})"
+                                , member.username, "member", "M")
+                )
+                .from(member)
+                .fetch();
+
+        // then
+        for (String s : result) {
+            System.out.println(s);
+        }
+    }
 }
