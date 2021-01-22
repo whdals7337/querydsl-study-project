@@ -1,9 +1,11 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -18,7 +20,6 @@ import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 import study.querydsl.entity.Member;
 import study.querydsl.entity.QMember;
-import study.querydsl.entity.QTeam;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
@@ -625,5 +626,80 @@ public class QuerydslBasicTest {
         for (MemberDto memberDto : result) {
             System.out.println(memberDto);
         }
+    }
+
+    @Test
+    public void dynamicQueryByBooleanBuilder() throws Exception {
+        // given
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        // when
+        List<Member> result = searchMember1(usernameParam, ageParam);
+
+        // then
+
+        for (Member member1 : result) {
+            System.out.println(member1);
+        }
+    }
+    
+    @Test
+    public void dynamicQueryByWhereParam() throws Exception {
+        // given
+        String usernameParam = "member1";
+        Integer ageParam = null;
+
+        // when
+        List<Member> result = searchMember2(usernameParam, ageParam);
+        
+        // then
+        for (Member member1 : result) {
+            System.out.println(member1);
+        }
+    }
+
+    private List<Member> searchMember1(String userCond, Integer ageCond) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if(userCond != null){
+            builder.and(member.username.eq(userCond));
+        }
+
+        if(ageCond != null) {
+            builder.and(member.age.eq(ageCond));
+        }
+
+        return queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
+
+    private List<Member> searchMember2(String usernameParam, Integer ageParam) {
+        return queryFactory
+                .selectFrom(member)
+                .where(usernameEq(usernameParam), ageEq(ageParam))
+                .fetch();
+    }
+
+
+    private List<Member> searchMember3(String usernameParam, Integer ageParam) {
+        return queryFactory
+                .selectFrom(member)
+                .where(allEq(usernameParam, ageParam))
+                .fetch();
+    }
+
+
+    private BooleanExpression ageEq(Integer ageParam) {
+        return ageParam != null ? member.age.eq(ageParam) : null;
+    }
+
+    private BooleanExpression usernameEq(String usernameParam) {
+        return usernameParam != null ? member.username.eq(usernameParam) : null;
+    }
+
+    private BooleanExpression allEq(String usernameParam, Integer ageParam) {
+        return usernameEq(usernameParam).and(ageEq(ageParam));
     }
 }
