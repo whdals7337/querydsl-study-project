@@ -12,6 +12,7 @@ import study.querydsl.entity.Member;
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.springframework.util.StringUtils.hasText;
 import static study.querydsl.entity.QMember.member;
@@ -110,20 +111,37 @@ public class MemberJpaRepository {
                 .fetch();
     }
 
-
-    private BooleanExpression usernameEq(String username) {
-        return hasText(username) ? member.username.eq(username) : null;
+    public List<MemberTeamDto> searchBetween(MemberSearchCondition condition) {
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        member.age,
+                        team.id.as("teamId"),
+                        team.name.as("teamName")
+                ))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(
+                        betweenAge(condition.getAgeGoe(), condition.getAgeLoe())
+                )
+                .fetch();
     }
 
-    private BooleanExpression teamNameEq(String teamName) {
-        return hasText(teamName) ? team.name.eq(teamName) : null;
+    private BooleanBuilder betweenAge(Integer ageGoe, Integer ageLoe) {
+        return ageGoe(ageGoe).and(ageLoe(ageLoe));
     }
 
-    private BooleanExpression ageGoe(Integer ageGoe) {
-        return ageGoe != null ? member.age.goe(ageGoe) : null;
+    private BooleanBuilder usernameEq(String username) {
+        return hasText(username) ? new BooleanBuilder(member.username.eq(username)) : new BooleanBuilder();
     }
-
-    private BooleanExpression ageLoe(Integer ageLoe) {
-        return ageLoe != null ? member.age.loe(ageLoe) : null;
+    private BooleanBuilder teamNameEq(String teamName) {
+        return hasText(teamName) ? new BooleanBuilder(team.name.eq(teamName)) : new BooleanBuilder();
+    }
+    private BooleanBuilder ageGoe(Integer ageGoe) {
+        return ageGoe != null ? new BooleanBuilder(member.age.goe(ageGoe)) : new BooleanBuilder();
+    }
+    private BooleanBuilder ageLoe(Integer ageLoe) {
+        return ageLoe != null ? new BooleanBuilder(member.age.loe(ageLoe)) : new BooleanBuilder();
     }
 }
